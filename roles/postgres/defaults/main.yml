@@ -1,0 +1,25 @@
+---
+#
+packages: ['python3-pip', 'libpq-dev', 'python-dev', 'postgresql']
+#path to list eith dwb packages
+path_deb: /etc/apt/source.list.d/pgdg.list
+# deb link
+deb_line: deb http://apt.postgresql.org/pub/repos/apt/ stable main 
+#deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main
+#postgres key url
+key_url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+#
+login_user: postgres
+#
+socket: /var/run/postgresql
+#postgresql.conf link
+postgresql_conf: /etc/postgresql/14/main/postgresql.conf
+#pg_hba.conf lonk
+pg_hba_conf: /etc/postgresql/14/main/pg_hba.conf
+#postgresql.conf in jenkins
+postgresql_conf_jenkins: /root/.jenkins/workspace/install-postgres/roles/postgres/files/postgresql.conf
+#pg_hba.conf in jenkins
+pg_hba_conf_jenkins: /root/.jenkins/workspace/install-postgres/roles/postgres/files/pg_hba.conf
+#deb package url
+deb_pack: http://apt.postgresql.org/pub/repos/apt
+

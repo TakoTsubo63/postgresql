@@ -1,0 +1,8 @@
+---
+- name: install postgre SQL
+  hosts: all
+  become: yes
+  tasks:
+
+  roles:
+     - postgres

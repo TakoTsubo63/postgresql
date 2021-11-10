@@ -1,0 +1,86 @@
+---
+
+- name: Add signing key
+  ansible.builtin.apt_key:
+    url: "{{ key_url }}"
+    state: present
+
+- name: add deb package
+  apt_repository:
+    repo: deb "{{ deb_pack }}" focal-pgdg main
+
+- name: install package
+  apt:
+    update_cache: true
+    name: "{{ packages }}"
+    state: latest    
+
+- name: "UFW firewall allow HTTP on port 5432"
+  ufw:
+    rule: allow
+    port: "5432"
+    proto: tcp
+
+- name: install psycopg2
+  pip:
+    name: psycopg2
+
+- name: install postgresql
+  apt:
+     name: postgresql-14
+
+- name: Create rails user, with password, grant privs
+  postgresql_user:
+    login_user: "{{ login_user }}"
+    login_unix_socket: "{{ socket }}"
+    name: "{{ name_db }}"
+    password: "{{ pass_db }}"
+    role_attr_flags: CREATEDB,NOSUPERUSER
+  become: yes
+  become_user: postgres
+
+- name: Create a new database with name "mydb"
+  become: true
+  become_user: postgres
+  postgresql_db:
+    name: mydb
+
+- name: Set owner
+  postgresql_owner:
+    obj_type: database
+    db: mydb
+    new_owner: alex
+  become: yes
+  become_user: postgres
+
+- name: Remove defualts files
+  ansible.builtin.file:
+    path: "{{ pg_hba_conf }}"
+    state: absent
+
+- name: Remove defualts files
+  ansible.builtin.file:
+    path: "{{ postgresql_conf }}"
+    state: absent
+
+- name: upload file postgresql.conf
+  ansible.builtin.copy:
+    src: "{{ postgresql_conf_jenkins }}"
+    dest: "{{ postgresql_conf }}"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: upload file pg_hba.conf
+  ansible.builtin.copy:
+    src: "{{ pg_hba_conf_jenkins }}"
+    dest: "{{ pg_hba_conf }}"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: restart postgresql
+  ansible.builtin.systemd:
+     name: postgresql
+     state: restarted
+
